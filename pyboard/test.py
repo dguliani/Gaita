@@ -39,9 +39,7 @@ class SensorBase(object):
 
     def imu_startup_procedure(self):
         self.bno = BNO055.BNO055(i2c=1)
-        # self.bno = BNO055.BNO055(i2c=1, rst=18)
         if not self.bno.begin():
-            # print("Failed to init BNO055! Is the sensor connected?") # throw an error here in the future
             raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 
         status, self_test, error = self.bno.get_system_status()
