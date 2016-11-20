@@ -12,9 +12,6 @@ class SensorBase(object):
 
     def __init__(self):
         self.switch = pyb.Switch()
-        self.leds = [pyb.LED(i+1) for i in range(4)]
-        self.tim = pyb.Timer(4)
-
         self.imu_startup_procedure()
 
         self.static_delay = 10 #ms delay
