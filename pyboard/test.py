@@ -2,9 +2,11 @@
 import pyb
 import math
 from pyb import I2C
+import ESP8266
 import BNO055
 import sys
 import array
+import struct
 
 class SensorBase(object):
     # Below is calibration data stored from a calibration test performed on 14/11/16 - good starting point
@@ -12,9 +14,10 @@ class SensorBase(object):
 
     def __init__(self):
         self.switch = pyb.Switch()
-        self.imu_startup_procedure()
+        self.imu_startup_procedure() #TODO thread
+        self.esp_init() #TODO Thread
 
-        self.static_delay = 10 #ms delay
+        self.static_delay = 100 #ms delay
         self.zero_count = 0
         self.last_moving = False
         count = 0
@@ -28,12 +31,16 @@ class SensorBase(object):
         self.vel =          {'x':0, 'y':0, 'z':0}
         self.pos =          {'x':0, 'y':0, 'z':0}
         self.accel =        {'x':0, 'y':0, 'z':0}
-
+        self.esp.udp_connect()
         while not self.switch() and count < 1000:
-            self.sample()
+            # self.sample()
+            print("The IP address is: {}".format(struct.unpack('i', self.esp.IP)))
             # count = count + 1
             # log.write('{},{},{},{}\n'.format(count*self.static_delay,self.last_pos['x'],self.last_pos['y'],self.last_pos['z']))
+            self.esp.udp_send("t")
+
             pyb.delay(self.static_delay)
+        self.esp.udp_close()
 
         # log.close()
 
@@ -127,13 +134,20 @@ class SensorBase(object):
 
         self.last_moving = moving
 
-        # print('pos x: {}, pos y: {}, pos z: {}'.format(self.pos['x'], self.pos['y'], self.pos['z']))
+        print('pos x: {}, pos y: {}, pos z: {}'.format(self.pos['x'], self.pos['y'], self.pos['z']))
         # print('vel x: {}, vel y: {}, vel z: {}'.format(self.vel['x'], self.vel['y'], self.vel['z']))
         # print('accel x: {} accel y: {} accel z: {} \t gyr x: {} gyr y: {} gyr z: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'],gx,gy,gz))
         # print('accel x: {} accel y: {} accel z: {}, \t moving: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'], moving))
         # print(moving)
 
         # Sample FSR
+
+    ## WIFI ##
+    def esp_init(self):
+        self.esp = ESP8266.ESP8266()
+        print("tried initializing WIFI")
+
+
 
 if __name__ == "__main__":
     sensor_base = SensorBase()
