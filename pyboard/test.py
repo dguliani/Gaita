@@ -130,7 +130,7 @@ class SensorBase(object):
         # print('pos x: {}, pos y: {}, pos z: {}'.format(self.pos['x'], self.pos['y'], self.pos['z']))
         # print('vel x: {}, vel y: {}, vel z: {}'.format(self.vel['x'], self.vel['y'], self.vel['z']))
         # print('accel x: {} accel y: {} accel z: {} \t gyr x: {} gyr y: {} gyr z: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'],gx,gy,gz))
-q        # print('accel x: {} accel y: {} accel z: {}, \t moving: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'], moving))
+        # print('accel x: {} accel y: {} accel z: {}, \t moving: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'], moving))
         # print(moving)
 
         # Sample FSR
