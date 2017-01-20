@@ -18,7 +18,7 @@ You will notice that the paths for each of the various Eagle categories are set 
 
 Add the local path to the soleful directory in this repository by either appending the currently given path on Eagle with a colon (:) on Mac, or a semi-colon (;) on Windows. The resulting path may look like this:
 
-$EAGLEDIR/projects/examples:$HOME/<path-to-locally-cloned-git-repo>/eagle/soleful
+'$EAGLEDIR/projects/examples:$HOME/<path-to-locally-cloned-git-repo>/eagle/soleful'
 
 ### Libraries
 
@@ -31,7 +31,7 @@ Similarly, this project uses the following Libraries:
 
 Each of these libraries should be in the libraries folder of this repository, so append the path to each of these folders following a similar fashion as above in Eagle. An example is below:
 
-$EAGLEDIR/lbr:$HOME/<path-to-locally-cloned-git-repo>/eagle/libraries/SparkFun-Eagle-Libraries-master:<so on for each library>
+'$EAGLEDIR/lbr:$HOME/<path-to-locally-cloned-git-repo>/eagle/libraries/SparkFun-Eagle-Libraries-master:<so on for each library>'
 
 ## Using Eagle
 
