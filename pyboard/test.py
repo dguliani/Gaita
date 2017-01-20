@@ -8,22 +8,25 @@ import sys
 import array
 import struct
 
-class SensorBase(object):
-    # Below is calibration data stored from a calibration test performed on 14/11/16 - good starting point
-    IMU_CALDATA = array.array('b', [-10, -1, -12, -1, 2, 0, 40, 0, -21, -1, 80, 0, -2, -1, 0, 0, 0, 0, -24, 3, 121, 3])
-
+class Test(object):
     def __init__(self):
         self.switch = pyb.Switch()
         self.imu_startup_procedure() #TODO thread
-        self.esp_init() #TODO Thread
+        # self.esp_init() #TODO Thread
+        self.led = pyb.LED(1)
+        self.start_led = pyb.LED(2)
 
-        self.static_delay = 100 #ms delay
+        self.start_led.on()
+        pyb.delay(500)
+        self.start_led.off()
+
+        self.static_delay = 10 #ms delay
         self.zero_count = 0
         self.last_moving = False
         count = 0
 
-        # log = open('/sd/19_11_16_walk_sim.csv', 'w')
-        # pyb.delay(500)
+        log = open('/sd/13_01_17_accel_drift.csv', 'w')
+        pyb.delay(1000)
 
         self.last_vel =     {'x':0, 'y':0, 'z':0}
         self.last_pos =     {'x':0, 'y':0, 'z':0}
@@ -31,18 +34,31 @@ class SensorBase(object):
         self.vel =          {'x':0, 'y':0, 'z':0}
         self.pos =          {'x':0, 'y':0, 'z':0}
         self.accel =        {'x':0, 'y':0, 'z':0}
-        self.esp.udp_connect()
-        while not self.switch() and count < 1000:
-            # self.sample()
-            print("The IP address is: {}".format(struct.unpack('i', self.esp.IP)))
+        self.start_time =    pyb.millis();
+
+        # self.esp.udp_connect()
+        time = 0;
+        while not self.switch() and time < 20000:
+            self.sample()
+            time = pyb.elapsed_millis(self.start_time)
+            # print("The IP address is: {}".format(struct.unpack('i', self.esp.IP)))
             # count = count + 1
-            # log.write('{},{},{},{}\n'.format(count*self.static_delay,self.last_pos['x'],self.last_pos['y'],self.last_pos['z']))
-            self.esp.udp_send("t")
+            if self.last_moving is True:
+                self.led.on()
+            else:
+                self.led.off()
+            log.write('{},{},{},{}\n'.format(time,self.last_accel['x'],self.last_accel['y'],self.last_accel['z']))
+            # self.esp.udp_send("t")
 
             pyb.delay(self.static_delay)
-        self.esp.udp_close()
+        # self.esp.udp_close()
 
-        # log.close()
+        log.close()
+
+        self.led.off()
+        self.start_led.on()
+        pyb.delay(1000)
+        self.start_led.off()
 
     def imu_startup_procedure(self):
         self.bno = BNO055.BNO055(i2c=1)
@@ -58,7 +74,7 @@ class SensorBase(object):
             print('System error: {0}'.format(error))
             print('See datasheet section 4.3.59 for the meaning.')
 
-        # self.bno.set_calibration(self.IMU_CALDATA)
+        self.bno.set_calibration(self.IMU_CALDATA)
         print(self.bno.get_calibration())
         # Print BNO055 software revision and other diagnostic data.
         sw, bl, accel, mag, gyro = self.bno.get_revision()
@@ -79,9 +95,9 @@ class SensorBase(object):
         moving = True if (abs(gx) > gyr_threshold or abs(gy) > gyr_threshold or abs(gz) > gyr_threshold) else False
 
         accel_threshold = 0.05
-        self.accel['x'] = x if moving else 0
-        self.accel['y'] = y if moving else 0
-        self.accel['z'] = z if moving else 0
+        self.accel['x'] = x #if moving else 0
+        self.accel['y'] = y #if moving else 0
+        self.accel['z'] = z #if moving else 0
 
         if not moving and not self.last_moving:
             self.zero_count = self.zero_count + 1
@@ -134,7 +150,7 @@ class SensorBase(object):
 
         self.last_moving = moving
 
-        print('pos x: {}, pos y: {}, pos z: {}'.format(self.pos['x'], self.pos['y'], self.pos['z']))
+        # print('pos x: {}, pos y: {}, pos z: {}'.format(self.pos['x'], self.pos['y'], self.pos['z']))
         # print('vel x: {}, vel y: {}, vel z: {}'.format(self.vel['x'], self.vel['y'], self.vel['z']))
         # print('accel x: {} accel y: {} accel z: {} \t gyr x: {} gyr y: {} gyr z: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'],gx,gy,gz))
         # print('accel x: {} accel y: {} accel z: {}, \t moving: {}'.format(self.accel['x'],self.accel['y'],self.accel['z'], moving))
@@ -147,9 +163,7 @@ class SensorBase(object):
         self.esp = ESP8266.ESP8266()
         print("tried initializing WIFI")
 
-
-
 if __name__ == "__main__":
-    sensor_base = SensorBase()
-    del sensor_base
+    test = Test()
+    del test
 

@@ -14,7 +14,7 @@ UART_DEFAULT_PORT = 4
 ESP8266_DEFAULT_BAUDRATE = 9600
 DEVEL_SSID = "TellMyWifiLover"
 DEVEL_PWD = "pineapple"
-UDP_DEFAULT_IP = "127.0.0.39"
+UDP_DEFAULT_IP = "127.0.0.1"
 UDP_DEFAULT_PORT = 5005
 
 def enum(**enums):
@@ -47,14 +47,15 @@ class ESP8266(object):
     def _serial_send(self, command, ack=True, waitTm=1, retry=1): #todo
         print("Sending command {}".format(command))
         for i in range(retry):
-            self.serial.write(command + "\r\n")
+            self.serial.write(command +"\r\n" )
+            pyb.delay(20)
             ret = self.serial.readline()
             # print("The ret is: {}".format(struct.unpack('i', ret)))
             # print("The ret is: {}".format(struct.unpack('b', ret)))
             # print("The ret is: {}".format(struct.unpack('c', ret)))
             # print("The ret is: {}".format(struct.unpack('s', ret)))
             # print("The ret is: {}".format(struct.unpack('p', ret)))
-            print("Got return value {}".format(struct.unpack('c', ret)))
+            print("Got return value {}".format(str(ret)))
             while('busy' in ret):
                 ret = self.serial.readline()
                 if( ret in Status.OK): break
@@ -65,13 +66,13 @@ class ESP8266(object):
 
     def udp_connect(self):
         # Setup UDP Connection
-        self._serial_send("AT+CIPMUX=0") # single connection mode
+        self._serial_send("AT+CIPMUX=1") # single connection mode
         self._serial_send("AT+CIPSTART=1,\"UDP\",\"" + UDP_DEFAULT_IP + "\",5005")
 
     def udp_send(self, data):
         cmd = "AT+CIPSEND="+str(1)
         self._serial_send(cmd)
-        data = ">" + data
+        # data = ">" + data
         self._serial_send(data)
 
     def udp_close(self):
