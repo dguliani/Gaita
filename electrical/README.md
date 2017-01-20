@@ -3,9 +3,9 @@
 ## Electrical/Hardware Documentation
 
 In order to be able to successfully use/change the schematics, ensure first that you have:
+
 1. Installed Eagle
 2. Cloned the repository to a local location
-
 
 Having done those two things, there are a few modifications that may need to be made to ensure all the utlized libraries can be loaded on Eagle. First:
 
