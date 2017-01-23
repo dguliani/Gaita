@@ -56,6 +56,9 @@ class SensorBase(object):
         grx, gry, grz = self.bno.read_gravity()
         return (grx, gry, grz)
 
+    def sample_fsr(self):
+        pass
+
 if __name__ == "__main__":
     sensor_base = SensorBase()
     del sensor_base
