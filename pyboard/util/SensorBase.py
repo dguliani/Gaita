@@ -4,20 +4,33 @@ import math
 from pyb import I2C
 import ESP8266
 import BNO055
+import constants
 import sys
 import array
 import struct
 
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+    # Figure out how 'wide' each range is
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+
+    # Convert the left range into a 0-1 range (float)
+    valueScaled = float(value - leftMin) / float(leftSpan)
+
+    # Convert the 0-1 range into a value in the right range.
+    return rightMin + (valueScaled * rightSpan)
+
 class SensorBase(object):
     # Below is calibration data stored from a calibration test performed on 14/11/16 - good starting point
     IMU_CALDATA = array.array('b', [-10, -1, -12, -1, 2, 0, 40, 0, -21, -1, 80, 0, -2, -1, 0, 0, 0, 0, -24, 3, 121, 3])
+    FSR_ADC_PIN = pyb.Pin.board.Y12
 
     def __init__(self):
         # Initializing IMU
         self.imu_startup_procedure()
 
     def imu_startup_procedure(self):
-        self.bno = BNO055.BNO055(i2c=1)
+        self.bno = BNO055.BNO055(i2c=constants.BNO055_I2C_INDEX)
         if not self.bno.begin():
             raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
 
@@ -57,7 +70,29 @@ class SensorBase(object):
         return (grx, gry, grz)
 
     def sample_fsr(self):
-        pass
+        adc = pyb.ADC(self.FSR_ADC_PIN)    # create an ADC on pin Y12
+        fsr_voltage = translate(adc.read(), constants.ADC_MIN, constants.ADC_MAX, \
+                               constants.FSR_VOLTAGE_MIN, constants.FSR_VOLTAGE_MAX)
+
+
+        if( fsr_voltage > constants.FSR_VOLTAGE_THRESOLD): #10mV threshold
+            fsr_resistance = (constants.FSR_VOLTAGE_MAX - fsr_voltage) * constants.FSR_PAR_RES
+            fsr_resistance = fsr_resistance/fsr_voltage
+
+            fsr_conductance = constants.FSR_CONDUCTANCE;
+            fsr_conductance = fsr_conductance/fsr_resistance;
+
+             # Use the two FSR guide graphs to approximate the force
+            if (fsr_conductance <= 1000):
+                fsr_force = fsr_conductance/80
+            else:
+                fsr_force = fsr_conductance - 1000
+                fsr_force = fsr_force/30
+
+            return fsr_force
+
+        else:
+            return None
 
 if __name__ == "__main__":
     sensor_base = SensorBase()
