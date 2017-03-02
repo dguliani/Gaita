@@ -17,37 +17,49 @@ class IMULogger(object):
         self.sensor_base = SensorBase.SensorBase()
 
         # Constants
-        self.sampling_delay = 100 #ms delay
+        self.sampling_delay = 6 #ms delay
         self.standard_delay = 500 #ms
-        self.test_time = 20000 #ms
+        self.test_time = 30000 #ms
 
-        # log = open('/sd/18_01_17_raw_log_walk_sim.csv', 'w')
+        # Flicker to indicate start of test
+        for i in range(3):
+            self.start_led.on()
+            pyb.delay(self.standard_delay)
+            self.start_led.off()
+            pyb.delay(self.standard_delay)
+
+        while not self.switch():
+            pass
+
+        log = open('/sd/06_02_17_raw_walk_random.csv', 'w')
         pyb.delay(self.standard_delay)
 
         self.start_time = pyb.millis();
         time = 0;
 
-        # Flicker to indicate start of test
         self.start_led.on()
-        pyb.delay(self.standard_delay)
-        self.start_led.off()
+
         while not self.switch() and time < self.test_time:
             # TODO Sample and record gravity
             ax, ay, az, gx, gy, gz, mx, my, mz, yaw, roll, pitch = self.sensor_base.sample_motion()
+            fsr1, fsr2, fsr3 = self.sensor_base.sample_fsr()
             time = pyb.elapsed_millis(self.start_time)
 
-            ax = 0 if (abs(ax) < 1) else ax
-            ay = 0 if (abs(ay) < 1) else ay
-            az = 0 if (abs(az) < 1) else az
-            print("roll: {}  \t pitch: {} \t , yaw: {}".format(roll, pitch, yaw))
-            # log.write('{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(time, ax, ay, az, gx, gy, gz, mx, my, mz, roll, pitch, yaw))
+            # ax = 0 if (abs(ax) < 1) else ax
+            # ay = 0 if (abs(ay) < 1) else ay
+            # az = 0 if (abs(az) < 1) else az
+            # print("ax: {}  \t ay: {} \t , az: {}".format(ax, ay, az))
+            # print("fsr1: {}  \t fsr2: {} \t , fsr3: {}".format(fsr1, fsr2, fsr3))
+
+            log.write('{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(time, ax, ay, az, gx, gy, gz, mx, my, mz, roll, pitch, yaw, fsr1, fsr2, fsr3))
+            # log.write('{},{},{}, {}\n'.format(time, ax, ay, az))
             pyb.delay(self.sampling_delay)
 
-        # log.close()
+        log.close()
 
         # Flicker to indicate end of test
-        self.start_led.on()
-        pyb.delay(self.standard_delay)
+        # self.start_led.on()
+        # pyb.delay(self.standard_delay)
         self.start_led.off()
 
 
