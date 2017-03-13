@@ -37,10 +37,9 @@ class ESP8266(object):
 
     # TODO ADD Retry
     # Set expected_return parameter to None in order to retrieve full response
-    def _serial_send2(self, command, expected_return=Status.OK, timeout=1000):
+    def _serial_send(self, command, expected_return=Status.OK, timeout=1000):
         self.serial.write(command + "\r\n")
         response_received = 0
-        # TODO add timeout to this infinite waiting for response
         start_time = pyb.millis();
         time = 0;
         while(response_received == 0 and time < timeout):
@@ -71,11 +70,11 @@ class ESP8266(object):
         return(False,'Timeout')
 
     def startup_procedure(self):
-        passed, ret = self._serial_send2( "AT", expected_return=Status.OK )
+        passed, ret = self._serial_send( "AT", expected_return=Status.OK )
         if passed:
-            passed, ret = self._serial_send2( "AT+CWMODE=1") # set device mode (1=client, 2=AP, 3=both)
-            passed, ret = self._serial_send2( "AT+CWJAP=\""+self.ssid+"\",\""+self.pwd+"\"" ) # connect
-            passed, ret = self._serial_send2( "AT+CIFSR", expected_return=None) # check IP address
+            passed, ret = self._serial_send( "AT+CWMODE=1") # set device mode (1=client, 2=AP, 3=both)
+            passed, ret = self._serial_send( "AT+CWJAP=\""+self.ssid+"\",\""+self.pwd+"\"" ) # connect
+            passed, ret = self._serial_send( "AT+CIFSR", expected_return=None) # check IP address
             if passed:
                 self.IP = ret
                 print("Connected to {} with IP: {}".format(self.ssid, ret))
@@ -92,14 +91,14 @@ class ESP8266(object):
     # UDP Functions
     # TODO Something wrong with this reset
     def reset_wifi(self):
-        self._serial_send2('AT+RST')
+        self._serial_send('AT+RST')
         pyb.delay(constants.ESP_ST_DELAY)
 
     def udp_connect(self):
         # Setup UDP Connection
         if self.connected:
-            passed, ret = self._serial_send2("AT+CIPMUX=0") # single connection mode
-            passed, ret = self._serial_send2("AT+CIPSTART=\"UDP\",\"" + UDP_DEFAULT_IP + "\",5005", timeout=10000)
+            passed, ret = self._serial_send("AT+CIPMUX=0") # single connection mode
+            passed, ret = self._serial_send("AT+CIPSTART=\"UDP\",\"" + UDP_DEFAULT_IP + "\",5005", timeout=10000)
             if not passed:
                 print("Could not establish UDP connection: {}".format(ret))
             else:
@@ -111,10 +110,10 @@ class ESP8266(object):
         data_length = len(data)
         cmd = "AT+CIPSEND="+str(data_length)
         print("Trying to send data of length {}".format(str(data_length)))
-        passed, ret = self._serial_send2(cmd, expected_return=['>'])
+        passed, ret = self._serial_send(cmd, expected_return=['>'])
         if passed:
             data = data
-            passed, ret = self._serial_send2(data)
+            passed, ret = self._serial_send(data)
             if passed:
                 print("Sent: {}".format(data))
             else:
@@ -124,7 +123,7 @@ class ESP8266(object):
 
 
     def udp_close(self):
-        self._serial_send2("AT+CIPCLOSE")
+        self._serial_send("AT+CIPCLOSE")
 
     def udb_send_sample_num_stream(self):
         if self.connected and self.udp_connect():
