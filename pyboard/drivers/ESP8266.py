@@ -11,13 +11,13 @@ ESP8266_DEFAULT_BAUDRATE =  115200 #Experimentally derived for our ESP8266 chips
 DEVEL_SSID = "TellMyWifiLover" #"NETGEAR75"
 DEVEL_PWD = "pineapple" #"rockylotus847"#
 #UDP_DEFAULT_IP = "127.0.0.39"
-UDP_DEFAULT_IP = "192.168.0.100" #this should be the broadcast address of the laptop to stream to
+UDP_DEFAULT_IP = "192.168.0.101" #this should be the broadcast address of the laptop to stream to
 UDP_DEFAULT_PORT = 5005
 
 def enum(**enums):
     return type('Enum', (), enums)
 
-Status = enum(ERR='ERROR', OK=['OK', 'ready', 'no change', 'SEND OK'], BUSY='busy')
+Status = enum(ERR='ERROR', OK=['OK', 'ready', 'no change', 'SEND OK', 'ALREAY CONNECT'], BUSY='busy')
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 class ESP8266(object):
@@ -33,6 +33,7 @@ class ESP8266(object):
         self.connected = False
 
         self.startup_procedure()
+        self.udp_connect()
         # self.udb_send_sample_num_stream()
 
     # TODO ADD Retry
@@ -52,7 +53,7 @@ class ESP8266(object):
                 ret = self.serial.readline()
             else:
                 ret = ret.decode("utf-8")
-                # print(len(ret))
+                print(ret)
                 if( expected_return is None):
                     if( '\n' in ret and len(ret) < 4):
                         pass # Got carriage return, wait for other response
@@ -83,7 +84,7 @@ class ESP8266(object):
                 print("Failed to connect: {}".format(ret))
                 self.connected = False
 
-    def chunk_and_send(self):
+    def chunk_and_send(self, data):
         pass
 
     def _chunk(self):
@@ -104,6 +105,7 @@ class ESP8266(object):
             else:
                 return True
         else:
+            self.connected = False
             return False
 
     def udp_send(self, data):

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import numpy as np
 import csv
+from matplotlib import animation
 
 from StateMachine import State
 from StateMachine import StateMachine
@@ -11,8 +12,6 @@ import constants
 class Waiting(State):
     def run(self):
         print("Waiting for incoming data")
-        print self.test
-
 
     def next(self, input):
         if input == WalkAction.step_starts:
@@ -30,7 +29,6 @@ class Stepping(State):
 class RTGaitExtractor(StateMachine):
     def __init__(self, logpath=constants.LOG_PATH, state="waiting"):
         # Initial state
-
         self._startup_procedure_()
         # StateMachine.__init__(self, GaitExtractor.waiting)
 

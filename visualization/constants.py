@@ -17,3 +17,13 @@ FSR2_IND    = 14
 FSR3_IND    = 15
 
 LOG_PATH = ""
+
+
+# Plotly
+PY_USERNAME = 'biobit'
+PY_API_KEY = '6uOiEPcxqqmIxIaBADtz'
+
+PY_STEPH_STREAM = "ia98424pbe"
+PY_STEPL_STREAM = 'sogk4zoq5y'
+
+PY_STREAMS = [PY_STEPH_STREAM, PY_STEPL_STREAM]
