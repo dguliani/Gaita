@@ -20,13 +20,13 @@ LOG_PATH = ""
 
 
 # Plotly
-PY_USERNAME = 'biobit'
-PY_API_KEY = '6uOiEPcxqqmIxIaBADtz'
+PY_USERNAME = 'dguliani'
+PY_API_KEY = '6xJBPhrn7wwyMlxtqHnJ'
 
-PY_STEPH_STREAM = "ia98424pbe"
-PY_STEPL_STREAM = 'sogk4zoq5y'
-PY_STEPA_STREAM = '9xmd7jdewy'
-PY_PRESS_STREAM = 'gd2u6mupmt'
+PY_STEPH_STREAM = "lvpe1mcynw"
+PY_STEPL_STREAM = '6wvsjzb0h8'
+PY_STEPA_STREAM = 'hymnuijxxn'
+PY_PRESS_STREAM = 'xafghojopl'
 
 
 PY_STREAMS = [PY_STEPH_STREAM, PY_STEPL_STREAM, PY_STEPA_STREAM]
