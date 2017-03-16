@@ -21,10 +21,10 @@ class Dashboard(object):
         self.create_pressure_map()
         time.sleep(const.PY_STANDARD_DELAY)
 
-        self.clear_all_streams()
+        # self.clear_all_streams()
         self.threads = []
 
-        f_path = "/Users/dguliani/Documents/Development/workspace/Gaita/postprocessing/Processed/dynamic_05_03_17_shahid_walk_flat.csv"
+        f_path = "/Users/arbaazshah/Desktop/Arbaaz/Coding_Projects/Gaita/postprocessing/Processed/dynamic_05_03_17_shahid_walk_flat.csv"
         stream_thread = threading.Thread(target=self.stream_from_file, args=(f_path,))
         self.threads.append(stream_thread)
         stream_thread.start()
@@ -183,7 +183,18 @@ class Dashboard(object):
                                       showline=False,
                                       showgrid=False,
                                       zeroline=False,
-                                      showticklabels=False))
+                                      showticklabels=False),
+                           images= [dict(
+                                      source= "/Users/arbaazshah/Desktop/footprint.gif",
+                                      xref= "x",
+                                      yref= "y",
+                                      x= 0,
+                                      y= 3,
+                                      sizex= 2,
+                                      sizey= 2,
+                                      #sizing= "stretch",
+                                      opacity= 1.0,
+                                      layer= "below")])
 
         # Make a figure object
         fig = go.Figure(data=data, layout=layout)
