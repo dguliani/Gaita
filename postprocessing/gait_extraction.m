@@ -1,6 +1,6 @@
 function [] = gait_extraction(file)
     close all 
-
+    !mv /Volumes/RECOVERY/demo.csv ~/Documents/Development/workspace/Gaita/postprocessing/Raw/
     % This file will only works on data collected after Feb 6. 
     addpath('Raw');
     
@@ -10,7 +10,7 @@ function [] = gait_extraction(file)
     data = csvread(file);
 
     time = data(:,1)/1000; 
-    ax = data(:,2); ay = data(:,3); az = data(:,4);
+    ax = -data(:,2); ay = data(:,3); az = data(:,4);
     gx = data(:,5); gy = data(:,6); gz = data(:,7);
     mx = data(:,8); my = data(:,9); mz = data(:,10);
     roll = data(:,11); pitch = data(:,12); yaw = data(:,13); 
@@ -28,7 +28,7 @@ function [] = gait_extraction(file)
     ax = filter(b,a,ax); ay = filter(b,a,ay); az = filter(b,a,az);
     filt = tf(b, a);
 
-    ind = split_step_indices([fsr1 fsr2 fsr3], 0.5);
+    ind = split_step_indices([fsr1 fsr2 fsr3], 1);
 
     % Array of Gait Factors 
     step_time = [];
@@ -66,7 +66,7 @@ function [] = gait_extraction(file)
     SimModel = SimModel([1 3],[1 2 3]); % Delete yv from I/O list
     
     count = 1; 
-    figure(2)
+%     figure(2)
     for i=1:(length(ind)/2)
         s = ind(i*2 - 1);
         e = ind(i*2);
@@ -128,12 +128,12 @@ function [] = gait_extraction(file)
         
         % Saving Gait Factors for Live Plots 
 
-        subplot(3,1,1);
-        plot(time(s:e) - time(s), ye_x); hold on;
-        subplot(3,1,2);
-        plot(time(s:e) - time(s), ye_y); hold on;
-        subplot(3,1,3);
-        plot(time(s:e) - time(s), ye_z); hold on;
+%         subplot(3,1,1);
+%         plot(time(s:e) - time(s), ye_x); hold on;
+%         subplot(3,1,2);
+%         plot(time(s:e) - time(s), ye_y); hold on;
+%         subplot(3,1,3);
+%         plot(time(s:e) - time(s), ye_z); hold on;
     end 
     
     % outlier removal
@@ -143,82 +143,87 @@ function [] = gait_extraction(file)
     num_pts = length(time); 
     acc_raw = [ax ay az]; 
 
-    figure(1)
-    subplot(4,1,1); hold on; grid on; 
-    scatter([1:length(step_time)], step_time, 'r');
-    xlabel('Step Number'); 
-    ylabel('Step Time [s]');  
-    title('Step Times'); 
-
-    subplot(4,1,2); hold on; grid on; 
-    scatter(step_length, step_height, 'b'); 
-    xlabel('Step Length'); 
-    ylabel('Step Height');  
-    % title('Step Times'); 
-    % plot(time, fsr2, 'g');
-    % plot(time, fsr3, 'b');
-    % plot(time, temp);
-    % legend('x','y','z');
-
-    subplot(4,1,3); hold on; grid on; 
-    scatter(foot_angle.*(180/pi), cadence, 'g'); 
-    xlabel('Foot Angle'); 
-    ylabel('Cadence'); 
+%     figure(1)
+%     subplot(4,1,1); hold on; grid on; 
+%     scatter([1:length(step_time)], step_time, 'r');
+%     xlabel('Step Number'); 
+%     ylabel('Step Time [s]');  
+%     title('Step Times'); 
+% 
+%     subplot(4,1,2); hold on; grid on; 
+%     scatter(step_length, step_height, 'b'); 
+%     xlabel('Step Length'); 
+%     ylabel('Step Height');  
+%     % title('Step Times'); 
+%     % plot(time, fsr2, 'g');
+%     % plot(time, fsr3, 'b');
+%     % plot(time, temp);
+%     % legend('x','y','z');
+% 
+%     subplot(4,1,3); hold on; grid on; 
+%     scatter(foot_angle.*(180/pi), cadence, 'g'); 
+%     xlabel('Foot Angle'); 
+%     ylabel('Cadence'); 
+%     
+%     subplot(4,1,4); hold on; grid on; 
+%     scatter(accel_planar, accel_vertical, 'g'); 
+%     xlabel('Planar Accel'); 
+%     ylabel('Cadence'); 
     
-    subplot(4,1,4); hold on; grid on; 
-    scatter(accel_planar, accel_vertical, 'g'); 
-    xlabel('Planar Accel'); 
-    ylabel('Cadence'); 
-    
-%     mean(step_time)
-%     mean(step_length)
-%     mean(step_height)
     
     step_num = transpose([1:length(step_time)]);
      
-    figure(5);
-    ax1 = subplot(3,1,1);
-    plot(time, step_l_time, 'r'); grid on; hold on; 
-    plot(time, step_h_time, 'b'); 
-    legend('Step Length', 'Step Height'); 
-    title('Time domain walk'); 
-    w = zeros(length(time), 1); %sqrt(Q)*randn(n,1);
-    v = zeros(length(time), 1); %sqrt(R)*randn(n,1);
-
-    [kpx,x] = lsim(SimModel,[w,v,ax]);
-    [kpy,y] = lsim(SimModel,[w,v,ay]);
-    [kpz,z] = lsim(SimModel,[w,v,az]);
-
-    ye_x = kpx(:,2); % + v;     % measured response
-    ye_y = kpy(:,2); % + v;     % measured response
-    ye_z = kpz(:,2); % + v;     % measured response
-    
-    ax2 = subplot(3,1,2);
-    plot(time, sqrt(ye_x.^2 + ye_y.^2), 'r'); grid on; hold on; 
-    plot(time, ye_z, 'b'); 
-    legend('Step Length', 'Step Height'); 
-    
-    ax3 = subplot(3,1,3); 
-    plot(time, pitch); 
-    grid on; hold on; 
-    legend('Pitch (deg)');
-    
-    linkaxes([ax1,ax2, ax3], 'x'); 
-    raw_plot(data);
+%     figure(5);
+%     ax1 = subplot(3,1,1);
+%     plot(time, step_l_time, 'r'); grid on; hold on; 
+%     plot(time, step_h_time, 'b'); 
+%     legend('Step Length', 'Step Height'); 
+%     title('Time domain walk'); 
+%     w = zeros(length(time), 1); %sqrt(Q)*randn(n,1);
+%     v = zeros(length(time), 1); %sqrt(R)*randn(n,1);
+% 
+%     [kpx,x] = lsim(SimModel,[w,v,ax]);
+%     [kpy,y] = lsim(SimModel,[w,v,ay]);
+%     [kpz,z] = lsim(SimModel,[w,v,az]);
+% 
+%     ye_x = kpx(:,2); % + v;     % measured response
+%     ye_y = kpy(:,2); % + v;     % measured response
+%     ye_z = kpz(:,2); % + v;     % measured response
+%     
+%     ax2 = subplot(3,1,2);
+%     plot(time, sqrt(ye_x.^2 + ye_y.^2), 'r'); grid on; hold on; 
+%     plot(time, ye_z, 'b'); 
+%     legend('Step Length', 'Step Height'); 
+%     
+%     ax3 = subplot(3,1,3); 
+%     plot(time, pitch); 
+%     grid on; hold on; 
+%     legend('Pitch (deg)');
+%     
+%     linkaxes([ax1,ax2, ax3], 'x'); 
+%     raw_plot(data);
     if( save_file )
         
         fsr1 = smooth(fsr1, 15);
         fsr2 = smooth(fsr2, 15);
         fsr3 = smooth(fsr3, 15);
+        fsr1 = (fsr1 - min(fsr1))/(max(fsr1) - min(fsr1));
+        fsr2 = (fsr2 - min(fsr2))/(max(fsr2) - min(fsr2));
+        fsr3 = (fsr3 - min(fsr3))/(max(fsr3) - min(fsr3));
         static_factors = [step_num, transpose(step_time) transpose(step_length),...
                         transpose(step_height), transpose(foot_angle),...
                         transpose(accel_planar), transpose(accel_vertical)]; 
 
+                    
         dyn_factors = [time, step_l_time, step_h_time, pitch, fsr1, fsr2, fsr3];
 
-        static_path = strcat('Processed/static_',file);
-        dyn_path = strcat('Processed/dynamic_',file);
+%         static_path = strcat('Processed/static_',file);
+%         dyn_path = strcat('Processed/dynamic_',file);
+        static_path = 'Processed/static_demo.csv';
+        dyn_path = 'Processed/dynamic_demo.csv'; 
         csvwrite(static_path,static_factors);
         csvwrite(dyn_path,dyn_factors);
+        
+        !python /Users/dguliani/Documents/Development/workspace/Gaita/visualization/plot_test.py
     end
 end

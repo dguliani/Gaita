@@ -20,18 +20,20 @@ class Dashboard(object):
         self.create_angle_stream()
         self.create_pressure_map()
         time.sleep(const.PY_STANDARD_DELAY)
+        # self.static_path = "../postprocessing/Processed/static_demo.csv"
+        # self.static_reference = "../postprocessing/Processed/static_03_16_17_dhruv_walk_flat.csv"
+        # self.create_3d_cluster()
 
-        # self.clear_all_streams()
+        self.clear_all_streams()
         self.threads = []
 
-        f_path = "/Users/arbaazshah/Desktop/Arbaaz/Coding_Projects/Gaita/postprocessing/Processed/dynamic_05_03_17_shahid_walk_flat.csv"
+        f_path = "../postprocessing/Processed/dynamic_demo.csv"
         stream_thread = threading.Thread(target=self.stream_from_file, args=(f_path,))
         self.threads.append(stream_thread)
         stream_thread.start()
 
         stream_thread.join()
         self.threads.remove(stream_thread)
-        # self.stream_from_file(f_path)
 
 
     def clear_all_streams(self):
@@ -82,8 +84,8 @@ class Dashboard(object):
                     step_height = float(row[2])
                     pitch = float(row[3])
                     fsr_frontl = float(row[4])*const.PY_PRESS_MULTIPLIER
-                    fsr_back = float(row[5])*const.PY_PRESS_MULTIPLIER
-                    fsr_frontr = float(row[6])*const.PY_PRESS_MULTIPLIER
+                    fsr_frontr = float(row[5])*const.PY_PRESS_MULTIPLIER
+                    fsr_back = float(row[6])*const.PY_PRESS_MULTIPLIER
 
 
                     s1.write(dict(x=t, y=step_height))
@@ -97,8 +99,8 @@ class Dashboard(object):
 
                     time.sleep(t - last_t)
 
-                    if t > 15:
-                        "Stopping stream after 60 seconds"
+                    if t > 20:
+                        "Stopping stream after 20 seconds"
                         break
 
                 last_t = float(row[0])
@@ -183,18 +185,7 @@ class Dashboard(object):
                                       showline=False,
                                       showgrid=False,
                                       zeroline=False,
-                                      showticklabels=False),
-                           images= [dict(
-                                      source= "/Users/arbaazshah/Desktop/footprint.gif",
-                                      xref= "x",
-                                      yref= "y",
-                                      x= 0,
-                                      y= 3,
-                                      sizex= 2,
-                                      sizey= 2,
-                                      #sizing= "stretch",
-                                      opacity= 1.0,
-                                      layer= "below")])
+                                      showticklabels=False))
 
         # Make a figure object
         fig = go.Figure(data=data, layout=layout)
@@ -263,33 +254,104 @@ class Dashboard(object):
         py.plot(fig, filename='Live Step Angles')
 
     def create_3d_cluster(self):
+        stream_id = dict(token=const.PY_CLUSTER_STREAM, maxpoints=500)
         df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/alpha_shape.csv')
         df.head()
         # print len(df['x'])
         # return
+        x = []
+        y = []
+        z = []
+        x2 = []
+        y2 = []
+        z2 = []
+        x3 = []
+        y3 = []
+        z3 = []
+
+        with open(self.static_reference, 'rb') as csvfile:
+            print ("Opened static file")
+            spamreader = csv.reader(csvfile)
+            count = 0
+            print "reading static rows"
+            for row in spamreader:
+                x.append(float(row[1])) # Step Time
+                y.append(float(row[2])) # Step Length
+                z.append(float(row[3])) # Step Height
+
+        with open(self.static_path, 'rb') as csvfile:
+            print ("Opened static file")
+            spamreader = csv.reader(csvfile)
+            count = 0
+            print "reading static rows"
+            for row in spamreader:
+                x2.append(float(row[1])) # Step Time
+                y2.append(float(row[2])) # Step Length
+                z2.append(float(row[3])) # Step Height
+
+        with open("../postprocessing/Processed/static_05_03_17_shahid_walk_flat.csv", 'rb') as csvfile:
+            print ("Opened static file")
+            spamreader = csv.reader(csvfile)
+            count = 0
+            print "reading static rows"
+            for row in spamreader:
+                x3.append(float(row[1])) # Step Time
+                y3.append(float(row[2])) # Step Length
+                z3.append(float(row[3])) # Step Height
+
         scatter = dict(
             mode = "markers",
-            name = "y",
+            name = "shahid",
             type = "scatter3d",
-            x = (df['x']), y = (df['y']), z = (df['z']),
-            marker = dict( size=2, color="rgb(23, 190, 207)" )
+            x = x, y = y, z = z,
+            marker = dict( size=2, color="rgb(23, 190, 207)" ),
         )
-        # clusters = dict(
-        #     alphahull = 7,
-        #     name = "y",
-        #     opacity = 0.1,
-        #     type = "mesh3d",
-        #     x = df['x'], y = df['y'], z = df['z']
-        # )
+
+        scatter2 = dict(
+            mode = "markers",
+            name = "dhruv",
+            type = "scatter3d",
+            x = x2, y = y2, z = z2,
+            marker = dict( size=2, color="rgb(249, 97, 97)" ),
+        )
+
+        scatter3 = dict(
+            mode = "markers",
+            name = "sherry",
+            type = "scatter3d",
+            x = x3, y = y3, z = z3,
+            marker = dict( size=2, color="rgb(34, 47, 91)" ),
+        )
+        clusters = dict(
+            alphahull = 7,
+            name = "shahid",
+            opacity = 0.1,
+            type = "mesh3d",
+            x = x, y = y, z = z
+        )
+        clusters2 = dict(
+            alphahull = 7,
+            name = "dhruv",
+            opacity = 0.1,
+            type = "mesh3d",
+            x = x2, y = y2, z = z2
+        )
+        clusters3 = dict(
+            alphahull = 7,
+            name = "sherry",
+            opacity = 0.1,
+            type = "mesh3d",
+            x = x3, y = y3, z = z3
+        )
         layout = dict(
             title = 'Steps Clustered by Gait',
             scene = dict(
-                xaxis = dict( zeroline=False, title="Step Height (m)" ),
+                xaxis = dict( zeroline=False, title="Step Time (s)" ),
                 yaxis = dict( zeroline=False, title="Step Length (m)"),
-                zaxis = dict( zeroline=False, title="Double Support (s)" ),
+                zaxis = dict( zeroline=False, title="Step Height (m)" ),
             )
         )
-        fig = dict( data=[scatter], layout=layout )
+        fig = dict( data=[scatter, scatter2, scatter3, clusters, clusters2, clusters3], layout=layout )
         py.plot(fig, filename='Step Clustering')
 
 

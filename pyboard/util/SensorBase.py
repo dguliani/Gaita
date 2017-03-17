@@ -23,9 +23,12 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
 class SensorBase(object):
     # Below is calibration data stored from a calibration test performed on 14/11/16 - good starting point
     IMU_CALDATA = array.array('b', [-10, -1, -12, -1, 2, 0, 40, 0, -21, -1, 80, 0, -2, -1, 0, 0, 0, 0, -24, 3, 121, 3])
-    FSR_ADC_PIN_1 = pyb.Pin.board.X8
-    FSR_ADC_PIN_2 = pyb.Pin.board.Y11
-    FSR_ADC_PIN_3 = pyb.Pin.board.Y12
+    # FSR_ADC_PIN_1 = pyb.Pin.board.X8
+    # FSR_ADC_PIN_2 = pyb.Pin.board.Y11
+    # FSR_ADC_PIN_3 = pyb.Pin.board.Y12
+    FSR_ADC_PIN_1 = pyb.Pin.board.X4
+    FSR_ADC_PIN_2 = pyb.Pin.board.X7
+    FSR_ADC_PIN_3 = pyb.Pin.board.X5
 
     def __init__(self):
         # Initializing IMU
@@ -44,8 +47,8 @@ class SensorBase(object):
 
             # print("FSR Resistance :{}".format(fsr_resistance))
             # if(abs(fsr_resistance) < 0.0001): # TODO Fix this temp fix
-                # print("FSR Resistance threshold found")
-                # return 0
+            #     print("FSR Resistance threshold found")
+            #     return 0
 
             fsr_conductance = constants.FSR_CONDUCTANCE;
             fsr_conductance = fsr_conductance/fsr_resistance;
